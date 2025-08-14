@@ -4,5 +4,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.data_uploader_view, name='data_uploader'),
+    # This must use .as_view() because we are now using a class
+    path('', views.data_uploader_view.as_view(), name='data_uploader'),
 ]

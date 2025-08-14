@@ -3,11 +3,19 @@
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
-from mozilla_django_oidc.auth import oidc_login_required
+from django.views import View
 
-@oidc_login_required
-def data_uploader_view(request):
-    if request.method == 'POST':
+# This now imports from your new local oidc.py file
+from .oidc import OIDCLoginRequiredMixin
+
+
+class data_uploader_view(OIDCLoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        """Handles displaying the upload form page."""
+        return render(request, 'uploader/data_uploader.html')
+
+    def post(self, request, *args, **kwargs):
+        """Handles the file upload submission."""
         uploaded_file = request.FILES.get('file-upload')
 
         if not uploaded_file or not uploaded_file.name.lower().endswith('.csv'):
@@ -21,5 +29,3 @@ def data_uploader_view(request):
             messages.error(request, f"An unexpected error occurred: {e}")
 
         return redirect('data_uploader')
-
-    return render(request, 'uploader/data_uploader.html')

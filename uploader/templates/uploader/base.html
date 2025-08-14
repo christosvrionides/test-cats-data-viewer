@@ -1,33 +1,50 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="govuk-template">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Data Uploader{% endblock %}</title>
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        .messages { list-style: none; padding: 0; }
-        .messages li.success { color: green; }
-        .messages li.error { color: red; }
-    </style>
-</head>
-<body>
-    <nav>
-        {% if user.is_authenticated %}
-            Welcome, {{ user.username }}! | <a href="{% url 'oidc_logout' %}">Logout</a>
-        {% else %}
-            <a href="{% url 'oidc_authentication_init' %}">Login</a>
-        {% endif %}
-    </nav>
-    <hr>
+    <title>{% block title %}Data Uploader{% endblock %} - GOV.UK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     
-    {% if messages %}
-        <ul class="messages">
-        {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
+    {# Link to YOUR compiled CSS file #}
+    <link rel="stylesheet" href="{% static 'uploader/css/main.css' %}">
+</head>
+<body class="govuk-template__body">
+    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
 
-    {% block content %}{% endblock %}
+    <header class="govuk-header" role="banner" data-module="govuk-header">
+      <div class="govuk-header__container govuk-width-container">
+        <div class="govuk-header__content">
+          <a href="/" class="govuk-header__link govuk-header__link--service-name">
+            Data Uploader Service
+          </a>
+        </div>
+        <div class="govuk-header__content">
+            {% if user.is_authenticated %}
+                Welcome, {{ user.username }}! | <a href="{% url 'oidc_logout' %}" class="govuk-header__link">Logout</a>
+            {% else %}
+                <a href="{% url 'oidc_authentication_init' %}" class="govuk-header__link">Login</a>
+            {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            {% if messages %}
+                <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {# Link to the GOV.UK Frontend JavaScript file #}
+    <script src="{% static 'govuk-frontend/dist/govuk-frontend.min.js' %}"></script>
+    <script>window.GOVUKFrontend.initAll()</script>
 </body>
 </html>
