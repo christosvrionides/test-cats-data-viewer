@@ -1,0 +1,13 @@
+{% extends "uploader/base.html" %}
+
+{% block title %}Upload a File{% endblock %}
+
+{% block content %}
+    <h2>Upload a CSV file</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file-upload" accept=".csv" required>
+        <br><br>
+        <button type="submit">Upload File</button>
+    </form>
+{% endblock %}
