@@ -18,8 +18,8 @@ services:
   minio:
     image: minio/minio
     ports:
-      - "9191:9000"   # <-- Host API port is now 9191
-      - "9292:9001"   # <-- Host Console port is now 9292
+      - "9191:9000"
+      - "9292:9001"
     volumes:
       - minio_data:/data
     environment:
@@ -35,8 +35,8 @@ services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
+    # The problematic volume mount has been removed.
+    # The Dockerfile's "COPY . ." handles the code.
     ports:
       - "8000:8000"
     env_file:

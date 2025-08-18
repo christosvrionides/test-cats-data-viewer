@@ -63,10 +63,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Static files (CSS, JavaScript, Images) ---
 STATIC_URL = 'static/'
+
+# **THE FINAL FIX**: Point to the single, top-level static directory
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'node_modules'),
+    BASE_DIR / 'static',
 ]
-# Add this line to define the collection directory
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # --- S3/MinIO Storage Configuration ---

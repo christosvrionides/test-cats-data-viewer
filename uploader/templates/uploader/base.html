@@ -6,8 +6,8 @@
     <title>{% block title %}Data Uploader{% endblock %} - GOV.UK</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     
-    {# Link to YOUR compiled CSS file #}
-    <link rel="stylesheet" href="{% static 'uploader/css/main.css' %}">
+    {# **FIXED**: This now points to the correct GOV.UK CSS file #}
+    <link rel="stylesheet" href="{% static 'govuk-frontend/dist/govuk/govuk-frontend.min.css' %}">
 </head>
 <body class="govuk-template__body">
     <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
@@ -43,8 +43,7 @@
         </main>
     </div>
 
-    {# Link to the GOV.UK Frontend JavaScript file #}
-    <script src="{% static 'govuk-frontend/dist/govuk-frontend.min.js' %}"></script>
+    <script src="{% static 'govuk-frontend/dist/govuk/govuk-frontend.min.js' %}"></script>
     <script>window.GOVUKFrontend.initAll()</script>
 </body>
 </html>
