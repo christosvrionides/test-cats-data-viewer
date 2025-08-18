@@ -65,10 +65,16 @@ WSGI_APPLICATION = 'uploader_project.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': 'db',  # matches the service name in docker-compose.yml
+        'PORT': 5432,
     }
 }
+
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = []
@@ -103,9 +109,9 @@ AWS_S3_USE_SSL = os.getenv('AWS_S3_USE_SSL', 'False') == 'True'
 
 # --- OIDC Authentication Configuration ---
 AUTHENTICATION_BACKENDS = [
-    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
 
 OIDC_RP_CLIENT_ID = os.getenv('OIDC_RP_CLIENT_ID')
 OIDC_RP_CLIENT_SECRET = os.getenv('OIDC_RP_CLIENT_SECRET')

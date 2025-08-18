@@ -2,41 +2,42 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:13
+    image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   minio:
     image: minio/minio
     ports:
-      - "9191:9000"
-      - "9292:9001"
+      - "9191:9000"   # MinIO API
+      - "9292:9001"   # MinIO Console
     volumes:
       - minio_data:/data
     environment:
-      - MINIO_ROOT_USER=${AWS_ACCESS_KEY_ID}
-      - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY}
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 5s
+      # Using MinIO CLI instead of curl for a reliable check
+      test: ["CMD-SHELL", "mc alias set local http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD && mc admin info local || exit 1"]
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    # The problematic volume mount has been removed.
-    # The Dockerfile's "COPY . ." handles the code.
     ports:
       - "8000:8000"
     env_file:
@@ -44,8 +45,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      minio:
-        condition: service_healthy
+      # Optional: only depend on MinIO if strictly required at startup
+      # minio:
+      #   condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
