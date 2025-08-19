@@ -6,7 +6,6 @@
 </div>
 
 <style>
-  /* Styles for the preview container */
   #preview-container {
     border: 1px solid #b1b4b6;
     border-radius: 6px;
@@ -15,7 +14,7 @@
     overflow: auto;
     background: #fff;
   }
-  #preview-container table { width: 100%; border-collapse: collapse; }
+  #preview-container table { width: max-content; border-collapse: collapse; }
   #preview-container th, #preview-container td {
     border-bottom: 1px solid #eee;
     padding: 6px 8px;
@@ -23,14 +22,13 @@
     text-align: left;
     font-family: monospace;
     font-size: 14px;
-    white-space: pre-wrap;
+    white-space: nowrap;
     word-break: break-word;
   }
-  #preview-container thead th { position: sticky; top: 0; background: #f3f2f1; }
+  #preview-container thead th { white-space: nowrap; position: sticky; top: 0; background: #f3f2f1; }
 </style>
 
 <script>
-/* Expose a tiny global to keep the preview logic self-contained. */
 window.CsvPreview = (function () {
   const previewGroup = document.getElementById('preview-group');
   const preview = document.getElementById('preview-container');
