@@ -1,5 +1,7 @@
+{# uploader/templates/uploader/data_uploader.html #}
+
 {% extends "uploader/base.html" %}
-{% with page_title="Data Uploader" %}
+{% block title %}Data Uploader{% endblock %}
 
 {% block content %}
 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
@@ -7,7 +9,7 @@
 <h2 class="govuk-heading-l">Upload a CSV file</h2>
 
 <form method="post" enctype="multipart/form-data" action=".">
-  {% csrf_token %} {# <-- Correct Django CSRF tag #}
+  {% csrf_token %}
 
   <div class="govuk-form-group" id="uploader-group">
     <label class="govuk-label" for="file-upload">
@@ -36,14 +38,14 @@
     <p class="govuk-error-message" id="csv-error" style="display:none;">Error: Please upload a .csv file.</p>
   </div>
 
-  <div class="govuk-form-group" id="preview-group" style="display:none;">
-    <label class="govuk-label">Preview (first 10 rows)</label>
-    <div id="preview-container" class="govuk-!-margin-top-2" aria-live="polite"></div>
-  </div>
+  {% include "uploader/data_preview.html" %}
+  {% include "uploader/metadata.html" %}
 
-  <button class="govuk-button" data-module="govuk-button" type="submit">
-    Upload file
-  </button>
+  <div class="govuk-button-group govuk-!-margin-top-4">
+    <button class="govuk-button" data-module="govuk-button" type="submit">
+      Upload file and Save Metadata
+    </button>
+  </div>
 </form>
 
 <style>
@@ -58,37 +60,15 @@
   }
   #dropzone.is-dragover { background: #e7f0ff; border-color: #1d70b8; }
   .has-error #dropzone, .has-error .govuk-file-upload { border-color: #d4351c !important; }
-  #preview-container {
-    border: 1px solid #b1b4b6;
-    border-radius: 6px;
-    padding: 8px;
-    max-height: 260px;
-    overflow: auto;
-    background: #fff;
-  }
-  #preview-container table { width: 100%; border-collapse: collapse; }
-  #preview-container th, #preview-container td {
-    border-bottom: 1px solid #eee;
-    padding: 6px 8px;
-    vertical-align: top;
-    text-align: left;
-    font-family: monospace;
-    font-size: 14px;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  #preview-container thead th { position: sticky; top: 0; background: #f3f2f1; }
 </style>
 
 <script>
 (function () {
-  const dropzone = document.getElementById('dropzone');
-  const input = document.getElementById('file-upload');
-  const status = document.getElementById('dropzone-status');
-  const errorMsg = document.getElementById('csv-error');
-  const group = document.getElementById('uploader-group');
-  const previewGroup = document.getElementById('preview-group');
-  const preview = document.getElementById('preview-container');
+  const dropzone   = document.getElementById('dropzone');
+  const input      = document.getElementById('file-upload');
+  const status     = document.getElementById('dropzone-status');
+  const errorMsg   = document.getElementById('csv-error');
+  const group      = document.getElementById('uploader-group');
 
   function clearError() {
     errorMsg.style.display = 'none';
@@ -99,8 +79,6 @@
     errorMsg.style.display = '';
     group.classList.add('has-error');
     status.textContent = '';
-    previewGroup.style.display = 'none';
-    preview.innerHTML = '';
   }
   function isCsv(file) {
     if (!file) return false;
@@ -109,84 +87,26 @@
     return nameOk || typeOk;
   }
 
-  function parseCSV(text, delimiter=',') {
-    const rows = [];
-    let row = [], cur = '', inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i];
-      if (inQuotes) {
-        if (ch === '"') {
-          if (text[i+1] === '"') { cur += '"'; i++; }
-          else { inQuotes = false; }
-        } else { cur += ch; }
-      } else {
-        if (ch === '"') inQuotes = true;
-        else if (ch === delimiter) { row.push(cur); cur = ''; }
-        else if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
-        else if (ch === '\r') { /* ignore CR; handle on \n */ }
-        else { cur += ch; }
-      }
-    }
-    if (cur.length || row.length) { row.push(cur); rows.push(row); }
-    if (rows.length && rows[rows.length-1].length === 1 && rows[rows.length-1][0] === '') rows.pop();
-    return rows;
-  }
-
-  function renderPreview(rows) {
-    if (!rows || !rows.length) {
-      preview.innerHTML = '<p class="govuk-hint">No rows to preview.</p>';
-      previewGroup.style.display = '';
-      return;
-    }
-    const maxRows = Math.min(10, rows.length);
-    const cols = Math.max(...rows.slice(0, maxRows).map(r => r.length));
-    const norm = rows.slice(0, maxRows).map(r => {
-      const copy = r.slice();
-      while (copy.length < cols) copy.push('');
-      return copy;
-    });
-    const header = norm[0];
-    const bodyRows = norm.slice(1);
-    let html = '<table>';
-    html += '<thead><tr>' + header.map(h => `<th>${escapeHtml(h)}</th>`).join('') + '</tr></thead>';
-    html += '<tbody>';
-    bodyRows.forEach(r => {
-      html += '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>';
-    });
-    html += '</tbody></table>';
-    preview.innerHTML = html;
-    previewGroup.style.display = '';
-  }
-
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
-
-  async function previewCsv(file) {
-    const CHUNK = 256 * 1024; // 256KB
-    const blob = file.slice(0, CHUNK);
-    const text = await blob.text();
-    const rows = parseCSV(text);
-    renderPreview(rows);
-  }
-
-  function setFile(file) {
+  async function setFile(file) {
     if (!isCsv(file)) {
       input.value = '';
       showError('Error: Please upload a .csv file.');
       return;
     }
     clearError();
+
     const dt = new DataTransfer();
     dt.items.add(file);
     input.files = dt.files;
     status.textContent = `Selected: ${file.name}`;
-    previewCsv(file).catch(() => {
-      previewGroup.style.display = 'none';
-      preview.innerHTML = '';
-    });
+
+    try {
+      if (window.CsvPreview && typeof CsvPreview.fromFile === 'function') {
+        await CsvPreview.fromFile(file);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   dropzone.addEventListener('click', () => input.click());
@@ -216,4 +136,3 @@
 })();
 </script>
 {% endblock %}
-{% endwith %}
