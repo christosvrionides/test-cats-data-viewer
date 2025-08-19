@@ -96,7 +96,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # -------------------
-# S3 / MINIO STORAGE (for production if needed)
+# S3 / MINIO STORAGE 
 # -------------------
 STORAGES = {
     "default": {

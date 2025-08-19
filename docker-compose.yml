@@ -28,7 +28,6 @@ services:
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
     command: server /data --console-address ":9001"
     healthcheck:
-      # Using MinIO CLI instead of curl for a reliable check
       test: ["CMD-SHELL", "mc alias set local http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD && mc admin info local || exit 1"]
       interval: 10s
       timeout: 5s
@@ -45,9 +44,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      # Optional: only depend on MinIO if strictly required at startup
-      # minio:
-      #   condition: service_healthy
     restart: unless-stopped
 
 volumes:
