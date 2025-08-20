@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-xl">View Datasets</h1>
+    <p class="govuk-body">Select a dataset from the dropdown to view its contents.</p>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="datasetSelect">Select a dataset</label>
+      <select class="govuk-select" id="datasetSelect" name="datasetSelect">
+        <option value="" selected disabled>Choose…</option>
+        {% for dataset in datasets %}
+          <option value="{{ dataset }}">{{ dataset }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div id="output" class="govuk-body" aria-live="polite">No dataset selected.</div>
+  </div>
+</div>
+
+<script>
+  const selectEl = document.getElementById('datasetSelect');
+  const outputEl = document.getElementById('output');
+
+  function renderTableFromObject(obj, captionText) {
+    outputEl.innerHTML = '';
+    const table = document.createElement('table');
+    table.className = 'govuk-table';
+
+    if (captionText) {
+      const caption = document.createElement('caption');
+      caption.className = 'govuk-table__caption govuk-table__caption--m';
+      caption.textContent = captionText;
+      table.appendChild(caption);
+    }
+
+    const thead = document.createElement('thead');
+    thead.className = 'govuk-table__head';
+    const headRow = document.createElement('tr');
+    headRow.className = 'govuk-table__row';
+
+    const thKey = document.createElement('th');
+    thKey.scope = 'col';
+    thKey.className = 'govuk-table__header';
+    thKey.textContent = 'Field';
+
+    const thVal = document.createElement('th');
+    thVal.scope = 'col';
+    thVal.className = 'govuk-table__header';
+    thVal.textContent = 'Value';
+
+    headRow.appendChild(thKey);
+    headRow.appendChild(thVal);
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    tbody.className = 'govuk-table__body';
+
+    Object.entries(obj).forEach(([key, value]) => {
+      const row = document.createElement('tr');
+      row.className = 'govuk-table__row';
+      const th = document.createElement('th');
+      th.scope = 'row';
+      th.className = 'govuk-table__header';
+      th.textContent = key;
+      const td = document.createElement('td');
+      td.className = 'govuk-table__cell';
+      td.textContent = JSON.stringify(value);
+      row.appendChild(th);
+      row.appendChild(td);
+      tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    outputEl.appendChild(table);
+  }
+
+  selectEl.addEventListener('change', (e) => {
+    const datasetKey = e.target.value;
+    if (!datasetKey) return;
+
+    outputEl.textContent = 'Loading…';
+
+    fetch(`/get_dataset/${datasetKey}/`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        renderTableFromObject(data, `${datasetKey} metadata`);
+      })
+      .catch(error => {
+        console.error('Error fetching dataset JSON:', error);
+        outputEl.textContent = 'Error loading dataset metadata.';
+      });
+  });
+</script>
+{% endblock %}

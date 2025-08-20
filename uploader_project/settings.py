@@ -4,12 +4,20 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-dev")
+
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
 ALLOWED_HOSTS = []
+
+
+# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -18,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages',         # S3/MinIO storage
-    'uploader',         # Your app
+    'mozilla_django_oidc',  # For OIDC authentication
+    'viewer',               # Our new app
 ]
 
 MIDDLEWARE = [
@@ -30,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mozilla_django_oidc.middleware.SessionRefresh', # Added for OIDC
 ]
 
 ROOT_URLCONF = 'uploader_project.urls'
@@ -37,7 +46,7 @@ ROOT_URLCONF = 'uploader_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"], # Added for base template
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -52,13 +61,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'uploader_project.wsgi.application'
 
+
 # -------------------
 # DATABASE CONFIGURATION
 # -------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'testdatauploader'),
+        'NAME': os.getenv('POSTGRES_DB', 'cats_viewer_db'),
         'USER': os.getenv('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.getenv('POSTGRES_HOST', 'db'),
@@ -66,14 +76,31 @@ DATABASES = {
     }
 }
 
+
 # -------------------
 # AUTHENTICATION
 # -------------------
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Only default superuser login
+    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
+# OIDC Settings
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET")
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_OP_AUTHORIZATION_ENDPOINT")
+OIDC_OP_TOKEN_ENDPOINT = os.getenv("OIDC_OP_TOKEN_ENDPOINT")
+OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_OP_USER_ENDPOINT")
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_OP_JWKS_ENDPOINT = os.getenv("OIDC_OP_JWKS_ENDPOINT")
+
+LOGIN_URL = "/oidc/authenticate/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+
 AUTH_PASSWORD_VALIDATORS = []
+
 
 # -------------------
 # INTERNATIONALIZATION
@@ -84,37 +111,21 @@ USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 # -------------------
 # STATIC FILES
 # -------------------
 STATIC_URL = 'static/'
-
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# -------------------
-# S3 / MINIO STORAGE 
-# -------------------
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
-AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_USE_SSL = os.getenv('AWS_S3_USE_SSL', 'False') == 'True'
 
 # -------------------
-# LOGIN / LOGOUT
+# MINIO STORAGE
 # -------------------
-LOGIN_URL = "/admin/login/"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME")
