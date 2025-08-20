@@ -12,3 +12,6 @@ db.sqlite3
 # IDE files
 .vscode/
 .idea/
+
+# Node
+node_modules/
