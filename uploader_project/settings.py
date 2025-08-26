@@ -26,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mozilla_django_oidc',  # For OIDC authentication
-    'viewer',               # Our new app
+    'mozilla_django_oidc',  # uselater for OIDC authentication
+    'viewer',
 ]
 
 MIDDLEWARE = [
@@ -38,7 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'mozilla_django_oidc.middleware.SessionRefresh', # Added for OIDC
+    # 'mozilla_django_oidc.middleware.SessionRefresh', # Comment out OIDC middleware
 ]
 
 ROOT_URLCONF = 'uploader_project.urls'
@@ -46,7 +46,7 @@ ROOT_URLCONF = 'uploader_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"], # Added for base template
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,11 +81,11 @@ DATABASES = {
 # AUTHENTICATION
 # -------------------
 AUTHENTICATION_BACKENDS = [
-    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+    # 'mozilla_django_oidc.auth.OIDCAuthenticationBackend', # Comment out OIDC backend
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# OIDC Settings
+# OIDC Settings (keep these here but they won't be used)
 OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET")
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_OP_AUTHORIZATION_ENDPOINT")
@@ -94,7 +94,8 @@ OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_OP_USER_ENDPOINT")
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_OP_JWKS_ENDPOINT = os.getenv("OIDC_OP_JWKS_ENDPOINT")
 
-LOGIN_URL = "/oidc/authenticate/"
+# Change the login URL to the Django admin
+LOGIN_URL = "/admin/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
