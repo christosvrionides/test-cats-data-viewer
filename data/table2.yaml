@@ -1,10 +1,10 @@
 owner_classification:
-  database_name: "database_name_2"
-  table_name: "table_a"
-  dataset_description: "description more than 20 chars"
-  data_owner: "sorcha@ics.gov.uk"
-  data_owner_email: "sorcha@ics.gov.uk"
-  data_steward: "sorcha@ics.gov.uk"
+  database_name: "dogs_woof"
+  table_name: "table_b"
+  dataset_description: "A database designed to store and manage information about dogs, including their breeds, characteristics, owners, and related records."
+  data_owner: "tester@ics.gov.uk"
+  data_owner_email: "tester@ics.gov.uk"
+  data_steward: "tester@ics.gov.uk"
   upload_team: "team_a"
   sensitivity_classification: "Official"
   contains_personal_data: true
@@ -15,33 +15,18 @@ owner_classification:
   not_uploaded_cats: true
 
 columns:
-  - column_name: "Row_wideeeeeeeeeeeeeeeeeee"
+  - column_name: "Breed"
     description: ""
-    data_type: "Integer"
+    data_type: "String"
     format: null
     coercion_warnings: "No issues detected"
-  - column_name: "date__wideeeeeeeeeeeeeeeeeee"
+  - column_name: "Colour"
     description: ""
-    data_type: "DateTime"
+    data_type: "String"
     format: "DD/MM/YYYY"
     coercion_warnings: "No issues detected"
-  - column_name: "age__wideeeeeeeeeeeeeeeeeee"
+  - column_name: "Age"
     description: ""
     data_type: "Integer"
-    format: null
-    coercion_warnings: "No issues detected"
-  - column_name: "gender__wideeeeeeeeeeeeeeeeeee"
-    description: ""
-    data_type: "String"
-    format: null
-    coercion_warnings: "No issues detected"
-  - column_name: "income_wideeeeeeeeeeeeeeeeeee"
-    description: ""
-    data_type: "String"
-    format: null
-    coercion_warnings: "No issues detected"
-  - column_name: "opted_wideeeeeeeeeeeeeeeeeee"
-    description: ""
-    data_type: "Boolean"
     format: null
     coercion_warnings: "No issues detected"

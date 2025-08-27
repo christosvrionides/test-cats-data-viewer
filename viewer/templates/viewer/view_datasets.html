@@ -27,9 +27,10 @@
   function renderMetadata(data) {
     outputEl.innerHTML = ''; // Clear previous content
 
+    // --- Render Owner Classification ---
     if (data.owner_classification) {
       const ownerTitle = document.createElement('h2');
-      ownerTitle.className = 'govuk-heading-m';
+      ownerTitle.className = 'govuk-heading-l'; // Made heading larger
       ownerTitle.textContent = 'Owner Classification';
       outputEl.appendChild(ownerTitle);
 
@@ -55,38 +56,44 @@
       outputEl.appendChild(ownerList);
     }
 
+    // --- Render Columns ---
     if (data.columns && Array.isArray(data.columns)) {
       const columnsTitle = document.createElement('h2');
-      columnsTitle.className = 'govuk-heading-m';
+      columnsTitle.className = 'govuk-heading-l'; // Made heading larger
       columnsTitle.textContent = 'Columns';
       outputEl.appendChild(columnsTitle);
 
-      const table = document.createElement('table');
-      table.className = 'govuk-table';
-
-      const thead = table.createTHead();
-      thead.className = 'govuk-table__head';
-      const headerRow = thead.insertRow();
-      const headers = ['Column Name', 'Description', 'Data Type', 'Format', 'Coercion Warnings'];
-      headers.forEach(text => {
-        const th = document.createElement('th');
-        th.className = 'govuk-table__header';
-        th.textContent = text;
-        headerRow.appendChild(th);
-      });
-
-      const tbody = table.createTBody();
-      tbody.className = 'govuk-table__body';
+      // Loop through each column and create a separate summary list for it
       data.columns.forEach(col => {
-        const row = tbody.insertRow();
-        row.className = 'govuk-table__row';
-        row.insertCell().textContent = col.column_name || '';
-        row.insertCell().textContent = col.description || '';
-        row.insertCell().textContent = col.data_type || '';
-        row.insertCell().textContent = col.format || 'N/A';
-        row.insertCell().textContent = col.coercion_warnings || '';
+        const colTitle = document.createElement('h3');
+        colTitle.className = 'govuk-heading-m';
+        colTitle.textContent = col.column_name || 'Unnamed Column';
+        outputEl.appendChild(colTitle);
+
+        const colList = document.createElement('dl');
+        colList.className = 'govuk-summary-list govuk-!-margin-bottom-7';
+
+        const metadataOrder = ['description', 'data_type', 'format', 'coercion_warnings'];
+        
+        metadataOrder.forEach(key => {
+          const row = document.createElement('div');
+          row.className = 'govuk-summary-list__row';
+          
+          const dt = document.createElement('dt');
+          dt.className = 'govuk-summary-list__key';
+          dt.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          
+          const dd = document.createElement('dd');
+          dd.className = 'govuk-summary-list__value';
+          dd.textContent = col[key] || 'N/A';
+
+          row.appendChild(dt);
+          row.appendChild(dd);
+          colList.appendChild(row);
+        });
+
+        outputEl.appendChild(colList);
       });
-      outputEl.appendChild(table);
     }
   }
 
@@ -96,7 +103,6 @@
 
     outputEl.textContent = 'Loading…';
 
-    // ✅ CORRECTED: This now correctly points to the root URL for get_dataset
     fetch(`/get_dataset/${datasetKey}/`)
       .then(response => {
         if (!response.ok) {

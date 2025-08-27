@@ -1,10 +1,10 @@
 owner_classification:
-  database_name: "database_name_a"
+  database_name: "cats_meow"
   table_name: "table_a"
-  dataset_description: "description more than 20 chars"
-  data_owner: "sorcha@ics.gov.uk"
-  data_owner_email: "sorcha@ics.gov.uk"
-  data_steward: "sorcha@ics.gov.uk"
+  dataset_description: "A database built to organize and track information about cats, such as breeds, traits, health records, and owner details."
+  data_owner: "test@ics.gov.uk"
+  data_owner_email: "test@ics.gov.uk"
+  data_steward: "test@ics.gov.uk"
   upload_team: "team_a"
   sensitivity_classification: "Official"
   contains_personal_data: true
@@ -15,33 +15,19 @@ owner_classification:
   not_uploaded_cats: true
 
 columns:
-  - column_name: "Row_wideeeeeeeeeeeeeeeeeee"
+  - column_name: "Breed"
     description: ""
-    data_type: "Integer"
+    data_type: "String"
     format: null
     coercion_warnings: "No issues detected"
-  - column_name: "date__wideeeeeeeeeeeeeeeeeee"
+  - column_name: "Colour"
     description: ""
-    data_type: "DateTime"
+    data_type: "String"
     format: "DD/MM/YYYY"
     coercion_warnings: "No issues detected"
-  - column_name: "age__wideeeeeeeeeeeeeeeeeee"
+  - column_name: "Age"
     description: ""
     data_type: "Integer"
     format: null
     coercion_warnings: "No issues detected"
-  - column_name: "gender__wideeeeeeeeeeeeeeeeeee"
-    description: ""
-    data_type: "String"
-    format: null
-    coercion_warnings: "No issues detected"
-  - column_name: "income_wideeeeeeeeeeeeeeeeeee"
-    description: ""
-    data_type: "String"
-    format: null
-    coercion_warnings: "No issues detected"
-  - column_name: "opted_wideeeeeeeeeeeeeeeeeee"
-    description: ""
-    data_type: "Boolean"
-    format: null
-    coercion_warnings: "No issues detected"
+  
