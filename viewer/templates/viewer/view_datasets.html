@@ -2,21 +2,21 @@
 
 {% block content %}
 <div class="govuk-grid-row">
-  <div class="govuk-grid-column-two-thirds">
+  <div class="govuk-grid-column-full">
     <h1 class="govuk-heading-xl">View Datasets</h1>
-    <p class="govuk-body">Select a dataset from the dropdown to view its contents.</p>
+    <p class="govuk-body">Select a dataset from the dropdown to view its metadata.</p>
 
     <div class="govuk-form-group">
       <label class="govuk-label" for="datasetSelect">Select a dataset</label>
-      <select class="govuk-select" id="datasetSelect" name="datasetSelect">
+      <select class="govuk-select" id="datasetSelect">
         <option value="" selected disabled>Choose…</option>
         {% for dataset in datasets %}
-          <option value="{{ dataset }}">{{ dataset }}</option>
+          <option value="{{ dataset.file }}">{{ dataset.name }}</option>
         {% endfor %}
       </select>
     </div>
 
-    <div id="output" class="govuk-body" aria-live="polite">No dataset selected.</div>
+    <div id="output" class="govuk-body" aria-live="polite"></div>
   </div>
 </div>
 
@@ -24,58 +24,70 @@
   const selectEl = document.getElementById('datasetSelect');
   const outputEl = document.getElementById('output');
 
-  function renderTableFromObject(obj, captionText) {
-    outputEl.innerHTML = '';
-    const table = document.createElement('table');
-    table.className = 'govuk-table';
+  function renderMetadata(data) {
+    outputEl.innerHTML = ''; // Clear previous content
 
-    if (captionText) {
-      const caption = document.createElement('caption');
-      caption.className = 'govuk-table__caption govuk-table__caption--m';
-      caption.textContent = captionText;
-      table.appendChild(caption);
+    if (data.owner_classification) {
+      const ownerTitle = document.createElement('h2');
+      ownerTitle.className = 'govuk-heading-m';
+      ownerTitle.textContent = 'Owner Classification';
+      outputEl.appendChild(ownerTitle);
+
+      const ownerList = document.createElement('dl');
+      ownerList.className = 'govuk-summary-list govuk-!-margin-bottom-9';
+
+      for (const [key, value] of Object.entries(data.owner_classification)) {
+        const row = document.createElement('div');
+        row.className = 'govuk-summary-list__row';
+        
+        const dt = document.createElement('dt');
+        dt.className = 'govuk-summary-list__key';
+        dt.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        
+        const dd = document.createElement('dd');
+        dd.className = 'govuk-summary-list__value';
+        dd.textContent = value;
+
+        row.appendChild(dt);
+        row.appendChild(dd);
+        ownerList.appendChild(row);
+      }
+      outputEl.appendChild(ownerList);
     }
 
-    const thead = document.createElement('thead');
-    thead.className = 'govuk-table__head';
-    const headRow = document.createElement('tr');
-    headRow.className = 'govuk-table__row';
+    if (data.columns && Array.isArray(data.columns)) {
+      const columnsTitle = document.createElement('h2');
+      columnsTitle.className = 'govuk-heading-m';
+      columnsTitle.textContent = 'Columns';
+      outputEl.appendChild(columnsTitle);
 
-    const thKey = document.createElement('th');
-    thKey.scope = 'col';
-    thKey.className = 'govuk-table__header';
-    thKey.textContent = 'Field';
+      const table = document.createElement('table');
+      table.className = 'govuk-table';
 
-    const thVal = document.createElement('th');
-    thVal.scope = 'col';
-    thVal.className = 'govuk-table__header';
-    thVal.textContent = 'Value';
+      const thead = table.createTHead();
+      thead.className = 'govuk-table__head';
+      const headerRow = thead.insertRow();
+      const headers = ['Column Name', 'Description', 'Data Type', 'Format', 'Coercion Warnings'];
+      headers.forEach(text => {
+        const th = document.createElement('th');
+        th.className = 'govuk-table__header';
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
 
-    headRow.appendChild(thKey);
-    headRow.appendChild(thVal);
-    thead.appendChild(headRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    tbody.className = 'govuk-table__body';
-
-    Object.entries(obj).forEach(([key, value]) => {
-      const row = document.createElement('tr');
-      row.className = 'govuk-table__row';
-      const th = document.createElement('th');
-      th.scope = 'row';
-      th.className = 'govuk-table__header';
-      th.textContent = key;
-      const td = document.createElement('td');
-      td.className = 'govuk-table__cell';
-      td.textContent = JSON.stringify(value);
-      row.appendChild(th);
-      row.appendChild(td);
-      tbody.appendChild(row);
-    });
-
-    table.appendChild(tbody);
-    outputEl.appendChild(table);
+      const tbody = table.createTBody();
+      tbody.className = 'govuk-table__body';
+      data.columns.forEach(col => {
+        const row = tbody.insertRow();
+        row.className = 'govuk-table__row';
+        row.insertCell().textContent = col.column_name || '';
+        row.insertCell().textContent = col.description || '';
+        row.insertCell().textContent = col.data_type || '';
+        row.insertCell().textContent = col.format || 'N/A';
+        row.insertCell().textContent = col.coercion_warnings || '';
+      });
+      outputEl.appendChild(table);
+    }
   }
 
   selectEl.addEventListener('change', (e) => {
@@ -84,6 +96,7 @@
 
     outputEl.textContent = 'Loading…';
 
+    // ✅ CORRECTED: This now correctly points to the root URL for get_dataset
     fetch(`/get_dataset/${datasetKey}/`)
       .then(response => {
         if (!response.ok) {
@@ -92,10 +105,10 @@
         return response.json();
       })
       .then(data => {
-        renderTableFromObject(data, `${datasetKey} metadata`);
+        renderMetadata(data);
       })
       .catch(error => {
-        console.error('Error fetching dataset JSON:', error);
+        console.error('Error fetching dataset YAML:', error);
         outputEl.textContent = 'Error loading dataset metadata.';
       });
   });

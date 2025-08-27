@@ -6,10 +6,9 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     
-    # This line tells Django that any request to the root URL ("/")
-    # should be handled by the URL patterns defined in `viewer.urls`.
+    # ✅ CORRECTED: This now correctly points all root URLs to your viewer app
     path("", include("viewer.urls")),
     
-    # This includes the necessary URLs for OIDC authentication.
+    # If you are using OIDC, keep this line
     path('oidc/', include('mozilla_django_oidc.urls')),
 ]

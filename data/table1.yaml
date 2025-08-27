@@ -1,0 +1,47 @@
+owner_classification:
+  database_name: "database_name_a"
+  table_name: "table_a"
+  dataset_description: "description more than 20 chars"
+  data_owner: "sorcha@ics.gov.uk"
+  data_owner_email: "sorcha@ics.gov.uk"
+  data_steward: "sorcha@ics.gov.uk"
+  upload_team: "team_a"
+  sensitivity_classification: "Official"
+  contains_personal_data: true
+  contains_special_category: true
+  dpia_completed: true
+  dataset_source: "ONS API"
+  database: "database_duplicate_a"
+  not_uploaded_cats: true
+
+columns:
+  - column_name: "Row_wideeeeeeeeeeeeeeeeeee"
+    description: ""
+    data_type: "Integer"
+    format: null
+    coercion_warnings: "No issues detected"
+  - column_name: "date__wideeeeeeeeeeeeeeeeeee"
+    description: ""
+    data_type: "DateTime"
+    format: "DD/MM/YYYY"
+    coercion_warnings: "No issues detected"
+  - column_name: "age__wideeeeeeeeeeeeeeeeeee"
+    description: ""
+    data_type: "Integer"
+    format: null
+    coercion_warnings: "No issues detected"
+  - column_name: "gender__wideeeeeeeeeeeeeeeeeee"
+    description: ""
+    data_type: "String"
+    format: null
+    coercion_warnings: "No issues detected"
+  - column_name: "income_wideeeeeeeeeeeeeeeeeee"
+    description: ""
+    data_type: "String"
+    format: null
+    coercion_warnings: "No issues detected"
+  - column_name: "opted_wideeeeeeeeeeeeeeeeeee"
+    description: ""
+    data_type: "Boolean"
+    format: null
+    coercion_warnings: "No issues detected"
