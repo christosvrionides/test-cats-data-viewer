@@ -1,0 +1,29 @@
+owner_classification:
+  table_name: Table Name
+  dataset_description: Monthly household energy usage data collected from smart meters.
+  data_owner: jane.doe@dsit.gov.uk
+  data_owner_email: jane.doe@dsit.gov.uk
+  data_steward: john.smith@dsit.gov.uk
+  team_uploading_the_data: Energy Insights Team
+  sensitivity_classification: Official Sensitive
+  contains_personal_data: yes
+  contains_special_category: no
+  dpia_completed: yes
+  source_of_dataset: ONS API
+  database: cats_db
+  already_uploaded_to_cats: no
+columns:
+  - column_name: "campaign_id"
+    description: "Unique campaign ID"
+    data_type: "String"
+    format: null
+    coercion_warnings: "No issues detected"
+  - column_name: "campaign_name"
+    description: "Name of the campaign"
+    data_type: "String"
+    format: null
+    coercion_warnings: "No issues detected"
+  - column_name: "start_date"
+    description: "Campaign start date"
+    data_type: "DateTime"
+    format: "YYYY-MM-DD"
